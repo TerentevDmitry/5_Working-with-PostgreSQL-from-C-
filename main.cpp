@@ -15,7 +15,7 @@ int main()
 			"port=5432 "
 			"dbname=Task1_clients "
 			"user=postgres "
-			"password=222322");
+			"password=");
 
 
 		pqxx::work transaction{ conn };
