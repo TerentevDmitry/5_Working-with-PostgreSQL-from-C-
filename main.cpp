@@ -6,8 +6,8 @@
 int main()
 {
     //setlocale(LC_ALL, "Russian");
-    SetConsoleCP(CP_UTF8);
-    SetConsoleOutputCP(CP_UTF8);
+    //SetConsoleCP(CP_UTF8);
+    //SetConsoleOutputCP(CP_UTF8);
 
 	try
 	{
@@ -17,46 +17,35 @@ int main()
         //db.createDatabase();
 
 
-        //db.addClient("name1", "surname1", "email1");
-        //db.show();
+        db.addClient("Dima", "Tere", "Tere@mail.ru", "89875265589");
+        db.show();
 
-        //db.addClient("name2", "surname2", "email2");
-        //db.show();
         try
         {
-            db.addPhone("name1", "phone1");
-            
+            db.addPhone("Dima", "89658756550");
         }
         catch (const std::exception& ex)
         {
-            SetConsoleCP(CP_UTF8);
-            SetConsoleOutputCP(CP_UTF8);
             std::cout << "Exception happened: " << ex.what() << std::endl;
         }
         db.show();
         
         try
         {
-            db.addPhone("name1", "phone2");
-
+            db.addPhone("name1", "89658756551");
         }
         catch (const std::exception& ex)
         {
-            SetConsoleCP(CP_UTF8);
-            SetConsoleOutputCP(CP_UTF8);
             std::cout << "Exception happened: " << ex.what() << std::endl;
         }
         db.show();
 
         try
         {
-            db.addPhone("name2", "phone3");
-
+            db.addPhone("name2", "89875265585");
         }
         catch (const std::exception& ex)
         {
-            SetConsoleCP(CP_UTF8);
-            SetConsoleOutputCP(CP_UTF8);
             std::cout << "Exception happened: " << ex.what() << std::endl;
         }
         db.show();
@@ -66,7 +55,6 @@ int main()
 	}
 	catch (const std::exception& ex)
 	{
-		//setlocale(LC_ALL, "Russian");
         SetConsoleCP(CP_UTF8);
         SetConsoleOutputCP(CP_UTF8);
 		std::cout << "Exception happened: " << ex.what() << std::endl;

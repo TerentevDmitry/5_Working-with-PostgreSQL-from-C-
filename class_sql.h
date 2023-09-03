@@ -15,11 +15,6 @@ struct Client
 	std::vector<std::string> phones_;
 };
 
-
-
-
-
-
 class DataBase
 {
 private:
@@ -27,21 +22,19 @@ private:
 	//std::string surname_;
 	//std::string email_;
 	//std::vector<std::string> phones_;
-	
 	pqxx::connection connection_;
 	
-
-
 public:
 	DataBase(const std::string& connection);
+
     void createDatabase();
 	void addClient(const std::string& name, const std::string& surname, const std::string& email, const std::string& phone);
 	void addPhone(const std::string& name, const std::string& phone);
 	void updateClient(const std::string& name, const std::string& newSurname, const std::string& newEmail);
-	void DataBase::removePhone(const std::string& name, const std::string& phone);
-	void DataBase::removeClient(const std::string& name);
+	void removePhone(const std::string& name, const std::string& phone);
+	void removeClient(const std::string& name);
 
-	std::vector<Client> DataBase::findClients(const std::string& query);
+	std::vector<Client> findClients(const std::string& query);
 
 
 	void show();

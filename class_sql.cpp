@@ -26,13 +26,16 @@ void DataBase::createDatabase() // Creating a database structure (tables)
 
 void DataBase::addClient(const std::string& name, const std::string& surname, const std::string& email, const std::string& phone) //Method for adding a new client
 {
+    
     try
     {
         pqxx::work txn(connection_);
-        pqxx::result res = txn.exec_params("INSERT INTO clients (name, surname, email) VALUES ($1, $2, $3, $4) RETURNING id", name, surname, email);
+        connection_.set_client_encoding("UTF8");
+        pqxx::result res = txn.exec_params("INSERT INTO clients (name, surname, email) VALUES ($1, $2, $3) RETURNING id", name, surname, email);
         if (!res.empty()) 
         {
             int client_id = res[0][0].as<int>();
+            txn.exec_params("INSERT INTO phones (client_id, phone) VALUES ($1, $2);", client_id, phone);
             txn.commit();
             std::cout << "Client added with ID: " << client_id << std::endl;
         }
@@ -119,14 +122,17 @@ void DataBase::addClient(const std::string& name, const std::string& surname, co
 void DataBase::addPhone(const std::string& name, const std::string& phone) // Adding a Phone for an Existing Customer
 {
     pqxx::work txn(connection_);
+    //connection_.set_client_encoding("UTF8");
     pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
-    if (!res.empty()) {
+    if (!res.empty()) 
+    {
         int client_id = res[0][0].as<int>();
         txn.exec_params("INSERT INTO phones (client_id, phone) VALUES ($1, $2)", client_id, phone);
         txn.commit();
         std::cout << "Phone added for client: " << name << std::endl;
     }
-    else {
+    else 
+    {
         txn.abort();
         std::cerr << "Client not found: " << name << std::endl;
     }
@@ -137,14 +143,16 @@ void DataBase::updateClient(const std::string& name, const std::string& newSurna
     // Изменение данных о клиенте
     pqxx::work txn(connection_);
     pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
-    if (!res.empty()) {
+    if (!res.empty()) 
+    {
         int client_id = res[0][0].as<int>();
         txn.exec_params("UPDATE clients SET surname = $1, email = $2 WHERE id = $3",
             newSurname, newEmail, client_id);
         txn.commit();
         std::cout << "Client updated: " << name << std::endl;
     }
-    else {
+    else 
+    {
         txn.abort();
         std::cerr << "Client not found: " << name << std::endl;
     }
@@ -153,16 +161,18 @@ void DataBase::updateClient(const std::string& name, const std::string& newSurna
 void DataBase::removePhone(const std::string& name, const std::string& phone)
 {
     // Удаление телефона для существующего клиента
-    pqxx::work txn(connection);
+    pqxx::work txn(connection_);
     pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
-    if (!res.empty()) {
+    if (!res.empty()) 
+    {
         int client_id = res[0][0].as<int>();
         txn.exec_params("DELETE FROM phones WHERE client_id = $1 AND phone = $2",
             client_id, phone);
         txn.commit();
         std::cout << "Phone removed for client: " << name << std::endl;
     }
-    else {
+    else 
+    {
         txn.abort();
         std::cerr << "Client not found: " << name << std::endl;
     }
@@ -171,7 +181,7 @@ void DataBase::removePhone(const std::string& name, const std::string& phone)
 void DataBase::removeClient(const std::string& name)
 {
     // Удаление существующего клиента
-    pqxx::work txn(connection);
+    pqxx::work txn(connection_);
     pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
     if (!res.empty()) {
         int client_id = res[0][0].as<int>();
