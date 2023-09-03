@@ -3,8 +3,6 @@
 
 DataBase::DataBase(const std::string& connection) : connection_{ connection } { std::cout << "Connected to database successfully!" << std::endl; };
 
-
-
 void DataBase::createDatabaseTables() // Creating a database structure (tables)
 {
     try

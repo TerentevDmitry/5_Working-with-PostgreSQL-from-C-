@@ -6,7 +6,6 @@
 #include <string>
 #include <codecvt>
 
-
 struct Client
 {
 	std::string name_;
@@ -31,16 +30,6 @@ public:
 	void removeClient(const std::string& email);
 
 	std::vector<Client> findClients(const std::string& query);
-
-
+	
 	void show();
-
-	//connection_.set_client_encoding("UTF8");
-
 };
-
-
-//Client DataInput(const std::string& name, const std::string& surname, const std::string& email)
-//{
-//	return ;
-//};

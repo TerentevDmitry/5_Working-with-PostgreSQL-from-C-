@@ -5,10 +5,6 @@
 
 int main()
 {
-    //setlocale(LC_ALL, "Russian");
-    //SetConsoleCP(CP_UTF8);
-    //SetConsoleOutputCP(CP_UTF8);
-
 	try
 	{
 		std::string connection_string = "host=127.0.0.1 port=5432 dbname=Task1_clients user=postgres password=222322";
@@ -58,13 +54,10 @@ int main()
             SetConsoleOutputCP(CP_UTF8);
             std::cout << "Exception happened: " << ex.what() << std::endl;
         }
-        
 
         db.removePhone("Diman@mail.ru", "89658756541");
             
         db.removeClient("DiTe@ma.r");
-
-        
 
         std::vector<Client> foundClients = db.findClients("Dima11");
         for (const auto& client : foundClients) 
