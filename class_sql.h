@@ -35,8 +35,14 @@ private:
 public:
 	DataBase(const std::string& connection);
     void createDatabase();
-	void addClient();
+	void addClient(const std::string& name, const std::string& surname, const std::string& email, const std::string& phone);
 	void addPhone(const std::string& name, const std::string& phone);
+	void updateClient(const std::string& name, const std::string& newSurname, const std::string& newEmail);
+	void DataBase::removePhone(const std::string& name, const std::string& phone);
+	void DataBase::removeClient(const std::string& name);
+
+	std::vector<Client> DataBase::findClients(const std::string& query);
+
 
 	void show();
 

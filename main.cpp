@@ -14,20 +14,61 @@ int main()
 		std::string connection_string = "host=127.0.0.1 port=5432 dbname=Task1_clients user=postgres password=222322";
 		DataBase db(connection_string);
 
-        db.addClient();
+        //db.createDatabase();
+
+
+        //db.addClient("name1", "surname1", "email1");
+        //db.show();
+
+        //db.addClient("name2", "surname2", "email2");
+        //db.show();
+        try
+        {
+            db.addPhone("name1", "phone1");
+            
+        }
+        catch (const std::exception& ex)
+        {
+            SetConsoleCP(CP_UTF8);
+            SetConsoleOutputCP(CP_UTF8);
+            std::cout << "Exception happened: " << ex.what() << std::endl;
+        }
+        db.show();
+        
+        try
+        {
+            db.addPhone("name1", "phone2");
+
+        }
+        catch (const std::exception& ex)
+        {
+            SetConsoleCP(CP_UTF8);
+            SetConsoleOutputCP(CP_UTF8);
+            std::cout << "Exception happened: " << ex.what() << std::endl;
+        }
         db.show();
 
-        db.addPhone("name", "phone");
+        try
+        {
+            db.addPhone("name2", "phone3");
+
+        }
+        catch (const std::exception& ex)
+        {
+            SetConsoleCP(CP_UTF8);
+            SetConsoleOutputCP(CP_UTF8);
+            std::cout << "Exception happened: " << ex.what() << std::endl;
+        }
         db.show();
-
-
 
 
 
 	}
 	catch (const std::exception& ex)
 	{
-		setlocale(LC_ALL, "Russian");
+		//setlocale(LC_ALL, "Russian");
+        SetConsoleCP(CP_UTF8);
+        SetConsoleOutputCP(CP_UTF8);
 		std::cout << "Exception happened: " << ex.what() << std::endl;
 	}
 
