@@ -5,12 +5,12 @@ DataBase::DataBase(const std::string& connection) : connection_{ connection } { 
 
 
 
-void DataBase::createDatabase() // Creating a database structure (tables)
+void DataBase::createDatabaseTables() // Creating a database structure (tables)
 {
     try
     {
         pqxx::work txn(connection_);
-        txn.exec(R"(CREATE TABLE IF NOT EXISTS clients(id SERIAL PRIMARY KEY, name TEXT, surname TEXT, email TEXT);  
+        txn.exec(R"(CREATE TABLE IF NOT EXISTS clients(id SERIAL PRIMARY KEY, name TEXT, surname TEXT, email TEXT UNIQUE);  
             CREATE TABLE IF NOT EXISTS phones(id SERIAL PRIMARY KEY, client_id INT REFERENCES clients(id), phone TEXT UNIQUE);)");
         txn.commit();
         std::cout << "A database structure (tables) created" << std::endl;
@@ -122,14 +122,15 @@ void DataBase::addClient(const std::string& name, const std::string& surname, co
 void DataBase::addPhone(const std::string& name, const std::string& phone) // Adding a Phone for an Existing Customer
 {
     pqxx::work txn(connection_);
-    //connection_.set_client_encoding("UTF8");
-    pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
+    pqxx::result res = txn.exec_params("SELECT id, surname FROM clients WHERE name = $1", name);
     if (!res.empty()) 
     {
         int client_id = res[0][0].as<int>();
         txn.exec_params("INSERT INTO phones (client_id, phone) VALUES ($1, $2)", client_id, phone);
+        
+        std::string client_surname = res[0][1].as<std::string>();
         txn.commit();
-        std::cout << "Phone added for client: " << name << std::endl;
+        std::cout << "Phone added for client: " << client_id << " " << name << " " << client_surname << std::endl;
     }
     else 
     {
@@ -138,71 +139,73 @@ void DataBase::addPhone(const std::string& name, const std::string& phone) // Ad
     }
 }
 
-void DataBase::updateClient(const std::string& name, const std::string& newSurname, const std::string& newEmail)
+void DataBase::updateClient(const std::string& email, const std::string& newName, const std::string& newSurname, const std::string& newEmail) //Changing customer data
 {
-    // Изменение данных о клиенте
     pqxx::work txn(connection_);
-    pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
+    pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE email = $1", email);
     if (!res.empty()) 
     {
         int client_id = res[0][0].as<int>();
-        txn.exec_params("UPDATE clients SET surname = $1, email = $2 WHERE id = $3",
-            newSurname, newEmail, client_id);
+        txn.exec_params(R"(UPDATE clients SET name = $1, surname = $2, email = $3 WHERE id = $4)", newName, newSurname, newEmail, client_id);
         txn.commit();
-        std::cout << "Client updated: " << name << std::endl;
+        std::cout << "Client updated: " << client_id << " " << newName << " " << newSurname << newEmail << std::endl;
     }
     else 
     {
         txn.abort();
-        std::cerr << "Client not found: " << name << std::endl;
+        std::cerr << "Client not found: " << newName << std::endl;
     }
 }
 
-void DataBase::removePhone(const std::string& name, const std::string& phone)
+void DataBase::removePhone(const std::string& email, const std::string& phone) //Deleting a phone for an existing client
 {
-    // Удаление телефона для существующего клиента
     pqxx::work txn(connection_);
-    pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
+    pqxx::result res = txn.exec_params("SELECT id, name, surname FROM clients WHERE email = $1", email);
     if (!res.empty()) 
     {
         int client_id = res[0][0].as<int>();
-        txn.exec_params("DELETE FROM phones WHERE client_id = $1 AND phone = $2",
-            client_id, phone);
+        txn.exec_params("DELETE FROM phones WHERE client_id = $1 AND phone = $2", client_id, phone);
         txn.commit();
-        std::cout << "Phone removed for client: " << name << std::endl;
+        std::string client_name = res[0][1].as<std::string>();
+        std::string client_surname = res[0][2].as<std::string>();
+        std::cout << "Phone removed for client: " << client_id << " " << client_name << " " << client_surname << std::endl;
     }
     else 
     {
         txn.abort();
-        std::cerr << "Client not found: " << name << std::endl;
+        std::cerr << "Client not found: " << email << std::endl;
     }
 }
 
-void DataBase::removeClient(const std::string& name)
+void DataBase::removeClient(const std::string& email) //Deleting an existing client
 {
-    // Удаление существующего клиента
     pqxx::work txn(connection_);
-    pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
+    pqxx::result res = txn.exec_params("SELECT id, name, surname FROM clients WHERE email = $1", email);
     if (!res.empty()) {
         int client_id = res[0][0].as<int>();
+        std::string client_name = res[0][1].as<std::string>();
+        std::string client_surname = res[0][2].as<std::string>();
         txn.exec_params("DELETE FROM phones WHERE client_id = $1", client_id);
-        txn.
-
-            exec_params("DELETE FROM clients WHERE id = $1", client_id);
+        txn.exec_params("DELETE FROM clients WHERE id = $1", client_id);
         txn.commit();
-        std::cout << "Client removed: " << name << std::endl;
+        std::cout << "Client removed: " << client_id << " " << client_name << " " << client_surname << std::endl;
     }
     else {
         txn.abort();
-        std::cerr << "Client not found: " << name << std::endl;
+        std::cerr << "Client not found: " << email << std::endl;
     }
 }
 
-std::vector<Client> DataBase::findClients(const std::string& query) {
+std::vector<Client> DataBase::findClients(const std::string& query) 
+{
     // Найти клиента по его данным (имени, фамилии, email-у или телефону)
     std::vector<Client> result;
     pqxx::work txn(connection_);
-    pqxx::result res = txn.exec_params("SELECT * FROM clients WHERE name = $1 OR surname = $1 OR email = $1", query);
+    pqxx::result res = txn.exec_params(
+        "SELECT * "
+        "FROM clients "
+        "LEFT JOIN public.phones on public.clients.id = public.phones.client_id "
+        "WHERE clients.name = $1 OR clients.surname = $1 OR clients.email = $1 OR phones.phone = $1;", query);
     txn.commit();
     for (auto row : res) {
         Client client;
