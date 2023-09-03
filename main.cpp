@@ -5,22 +5,20 @@
 
 int main()
 {
-	//Set console code page to UTF-8 so console known how to interpret string data
-	//SetConsoleCP(CP_UTF8);
-	//SetConsoleOutputCP(CP_UTF8);
+    //setlocale(LC_ALL, "Russian");
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
 
 	try
 	{
 		std::string connection_string = "host=127.0.0.1 port=5432 dbname=Task1_clients user=postgres password=222322";
-
-		Data_base db(connection_string);
-
-		db.createDatabase();
-
-
+		DataBase db(connection_string);
 
         db.addClient();
+        db.show();
 
+        db.addPhone("name", "phone");
+        db.show();
 
 
 
@@ -33,24 +31,12 @@ int main()
 		std::cout << "Exception happened: " << ex.what() << std::endl;
 	}
 
-	
-	
-
-
-
-
-
-	
-
-
-
-
 	std::cout << std::endl << std::endl << "Hello, World";
 
 	/*
     ```cpp
-#include <iostream>
-#include <pqxx/pqxx>
+*#include <iostream>
+*#include <pqxx/pqxx>
 
 struct Client {
     std::string name;
@@ -68,7 +54,8 @@ public:
         // Подключение к базе данных
     }
 
-    //void createDatabase() {
+    //void createDatabase() 
+    //{
     //    // Создание структуры БД (таблиц)
     //    pqxx::work txn(connection);
     //    txn.exec(R"(
@@ -87,7 +74,8 @@ public:
     //    txn.commit();
     }
 
-    void addClient(const std::string& name, const std::string& surname, const std::string& email) {
+    void addClient(const std::string& name, const std::string& surname, const std::string& email) 
+    {
         // Добавление нового клиента
         pqxx::work txn(connection);
         pqxx::result res = txn.exec_params("INSERT INTO clients (name, surname, email) VALUES ($1, $2, $3) RETURNING id",
@@ -102,7 +90,8 @@ public:
         }
     }
 
-    void addPhone(const std::string& name, const std::string& phone) {
+    void addPhone(const std::string& name, const std::string& phone) 
+    {
         // Добавление телефона для существующего клиента
         pqxx::work txn(connection);
         pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
@@ -117,7 +106,8 @@ public:
         }
     }
 
-    void updateClient(const std::string& name, const std::string& newSurname, const std::string& newEmail) {
+    void updateClient(const std::string& name, const std::string& newSurname, const std::string& newEmail) 
+    {
         // Изменение данных о клиенте
         pqxx::work txn(connection);
         pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
@@ -133,7 +123,8 @@ public:
         }
     }
 
-    void removePhone(const std::string& name, const std::string& phone) {
+    void removePhone(const std::string& name, const std::string& phone) 
+    {
         // Удаление телефона для существующего клиента
         pqxx::work txn(connection);
         pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
@@ -149,7 +140,8 @@ public:
         }
     }
 
-    void removeClient(const std::string& name) {
+    void removeClient(const std::string& name) 
+    {
         // Удаление существующего клиента
         pqxx::work txn(connection);
         pqxx::result res = txn.exec_params("SELECT id FROM clients WHERE name = $1", name);
@@ -158,8 +150,7 @@ public:
             txn.exec_params("DELETE FROM phones WHERE client_id = $1", client_id);
             txn.
     
-    
-	exec_params("DELETE FROM clients WHERE id = $1", client_id);
+	    exec_params("DELETE FROM clients WHERE id = $1", client_id);
             txn.commit();
             std::cout << "Client removed: " << name << std::endl;
         } else {
