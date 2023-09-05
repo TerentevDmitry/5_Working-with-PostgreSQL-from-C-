@@ -4,7 +4,7 @@ set(PostgreSQL_ADDITIONAL_VERSIONS "15")
 
 project(Task1_clients)
 
-add_executable(Task1_clients main.cpp "class_sql.cpp")
+add_executable(Task1_clients main.cpp "class_sql.cpp" "class_sql.h")
 
 add_subdirectory("C:\\Users\\Zabey\\Desktop\\CPP\\libpqxx-7.8.1" libpqxx-build)
 
